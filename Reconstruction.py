@@ -429,7 +429,6 @@ class Reconstruction:
         """
         Loop through windows in x
         """
-        """
         for k in range(min_x + int(slide * 0.5), max_x - int(slide * 0.5), slide):
             Reconstruction.zx_progress += 1
             yield Reconstruction.zx_progress
@@ -469,7 +468,7 @@ class Reconstruction:
                             points = array(shape.exterior.coords)
                         else:
                             points = array(shape.exterior.coords)[::-1]  # reverses order so its
-                        pt_list = [str((x_dict[str((j[0], j[1]))], j[0], j[1])) for j in points]
+                        pt_list = [str((x_dict[str(j[0:2])], j[0], j[1])) for j in points]
                         for ct, j in enumerate(points):
                             pts_dict[pt_list[ct]] = 1
                             if ct == 0:
@@ -485,7 +484,7 @@ class Reconstruction:
                                 extract_interior = extract_interior[0]
                             else:
                                 extract_interior = extract_interior[0][::-1]
-                            pt_list = [str((x_dict[str((j[0], j[1]))], j[0], j[1])) for j in extract_interior]
+                            pt_list = [str((x_dict[str(j[0:2])], j[0], j[1])) for j in extract_interior]
                             for ct, j in enumerate(extract_interior):
                                 pts_dict[pt_list[ct]] = 1
                                 if ct == 0:
@@ -507,7 +506,7 @@ class Reconstruction:
                         points = array(slice_shape.exterior.coords)
                     else:
                         points = array(slice_shape.exterior.coords)[::-1]  # reverses order so its CCW
-                    pt_list = [str((x_dict[str((j[0], j[1]))], j[0], j[1])) for j in points]
+                    pt_list = [str((x_dict[str(j[0:2])], j[0], j[1])) for j in points]
                     for ct, j in enumerate(points):
                         pts_dict[pt_list[ct]] = 1
                         if ct == 0:
@@ -523,7 +522,7 @@ class Reconstruction:
                             extract_interior = extract_interior[0]
                         else:
                             extract_interior = extract_interior[0][::-1]
-                        pt_list = [str((x_dict[str((j[0], j[1]))], j[0], j[1])) for j in extract_interior]
+                        pt_list = [str((x_dict[str(j[0:2])], j[0], j[1])) for j in extract_interior]
                         for ct, j in enumerate(extract_interior):
                             pts_dict[pt_list[ct]] = 1
                             if ct == 0:
@@ -535,33 +534,32 @@ class Reconstruction:
                             norm_dict[pt_list[ct]] = (0, norm[0], norm[1])
                 x_dict.clear()
         print("Time x: ", time() - t_x)
-        """
         t2 = time() - t1
         print("Total Time: ", t2)
 
         # writing to file
-        print(norm_dict.keys())
         points_saved = list(pts_dict.keys())
+        #print(points_saved)
 
         print('saving to file')
         with open(self.out_file[:-4] + '_dict.pkl', 'wb') as f:
             pickle.dump(norm_dict, f, pickle.HIGHEST_PROTOCOL)
         with open(self.out_file, "w+") as f: # output point cloud with corresponding normals
             for k in range(len(points_saved)):
-                pt_eval = list(points_saved[k][1:-1].split(" "))
+                pt_eval = list(points_saved[k][1:-1].split(", "))
                 norm = norm_dict["(" + str(points_saved[k][1:-1]) + ")"]
                 f.write("%s %s %s %f %f %f\n" % (pt_eval[0], pt_eval[1], pt_eval[2], norm[0], norm[1], norm[2]))
 
 def main():
-    Reconstruction.out_file_tag = ["CA1_", "CA3_", "Top_", "Septal_", "Temporal_x_"]
-    Reconstruction.out_file_tag = Reconstruction.out_file_tag[4]
+    Reconstruction.out_file_tag = ["CA1_", "CA3_", "Top_", "Septal_", "Temporal_"]
+    Reconstruction.out_file_tag = Reconstruction.out_file_tag[0]
     out_file = Reconstruction.out_file_tag + Reconstruction.fileID + Reconstruction.out_file_ext
-    #a = Reconstruction("src/vox_files/data_vox_CA1.npy", out_file=out_file)
+    a = Reconstruction("src/vox_files/data_vox_CA1.npy", out_file=out_file)
     #b = Reconstruction("src/vox_files/data_vox_DG_top.npy", out_file=out_file)
     #c = Reconstruction("src/vox_files/data_vox_DG_septal.npy", out_file=out_file)
-    d = Reconstruction("src/vox_files/data_vox_DG_temporal.npy", out_file=out_file)
+    #d = Reconstruction("src/vox_files/data_vox_DG_temporal.npy", out_file=out_file)
     #e = Reconstruction("src/vox_files/data_vox_CA3.npy", out_file=out_file)
-    for i in d.reconstruct():
+    for i in a.reconstruct():
        continue
         # print(i)
 #
